@@ -1,0 +1,8 @@
+plugins:
+  auto_deactivate_enabled:
+    default: false
+  auto_deactivate_after_days:
+    default: 365
+  auto_deactivate_safe_groups:
+    type: list
+    default: "staff"

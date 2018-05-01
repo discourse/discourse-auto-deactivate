@@ -1,0 +1,8 @@
+en:
+  site_settings:
+    auto_deactivate_enabled: Automatically deactivate users after a period of inactivity?
+    auto_deactivate_after_days: Number of days since the user was last active before deactivating them
+    auto_deactivate_safe_groups: If a user is part of any of these groups, never deactivate them
+  discourse_auto_deactivate:
+    deactivate-reason: "Account inactive for more than 1 year."
+
