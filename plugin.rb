@@ -16,35 +16,43 @@ after_initialize do
     end
   end
 
-
-
   module ::Jobs
     class AutoDeactivateUsers < Jobs::Scheduled
       every 1.day
 
+      def self.to_deactivate
+        auto_deactivate_days = SiteSetting.auto_deactivate_after_days.days.ago
+        to_deactivate = User.where("(last_seen_at IS NULL OR last_seen_at < ?) AND created_at < ?", auto_deactivate_days, auto_deactivate_days)
+                         .where('active = ?', true)
+                         .real
+      end
+
+      def self.exclude_users_in_safe_groups(deactivate_list)
+        safe_groups = SiteSetting.auto_deactivate_safe_groups
+        safe_to_deactivate = []
+        for user in deactivate_list do
+          safe_to_deactivate << user if !(user.groups.any?{|g| safe_groups.include? g.name})
+        end
+        safe_to_deactivate
+      end
+
       def execute(args)
         return if !SiteSetting.auto_deactivate_enabled?
 
-        auto_deactivate_days = SiteSetting.auto_deactivate_after_days.days.ago
-        to_deactivate = User.where("last_seen_at IS NULL OR last_seen_at < ? AND created_at < ?", auto_deactivate_days, auto_deactivate_days)
-                         .where('active = ?', true)
-                         .real
+        deactivate_list = self.class.to_deactivate
+        safe_to_deactivate = self.class.exclude_users_in_safe_groups(deactivate_list)
+        for user in safe_to_deactivate do
+          user.active = false
+          deactivate_reason = I18n.t("discourse_auto_deactivate.deactivate-reason")
 
-        for user in to_deactivate do
-          safe_groups = SiteSetting.auto_deactivate_safe_groups
-          user_is_safe = user.groups.any?{|g| safe_groups.include? g.name}
-
-          if not user_is_safe then
-            user.active = false
-            deactivate_reason = I18n.t("discourse_auto_deactivate.deactivate-reason")
-
-            if user.save
-              StaffActionLogger.new(Discourse.system_user).log_user_deactivate(user, deactivate_reason)
-            end
+          if user.save
+            StaffActionLogger.new(Discourse.system_user).log_user_deactivate(user, deactivate_reason)
           end
         end
       end
+
     end
   end
+
 end
 
