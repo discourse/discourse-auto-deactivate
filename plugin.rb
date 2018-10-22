@@ -23,15 +23,15 @@ after_initialize do
       def self.to_deactivate
         auto_deactivate_days = SiteSetting.auto_deactivate_after_days.days.ago
         to_deactivate = User.where("(last_seen_at IS NULL OR last_seen_at < ?) AND created_at < ?", auto_deactivate_days, auto_deactivate_days)
-                         .where('active = ?', true)
-                         .real
+          .where('active = ?', true)
+          .real
       end
 
       def self.exclude_users_in_safe_groups(deactivate_list)
         safe_groups = SiteSetting.auto_deactivate_safe_groups
         safe_to_deactivate = []
         for user in deactivate_list do
-          safe_to_deactivate << user if !(user.groups.any?{|g| safe_groups.include? g.name})
+          safe_to_deactivate << user if !(user.groups.any? { |g| safe_groups.include? g.name })
         end
         safe_to_deactivate
       end
@@ -55,4 +55,3 @@ after_initialize do
   end
 
 end
-
