@@ -37,7 +37,6 @@ RSpec.describe Jobs::AutoDeactivateUsers do
   end
 
   it 'checks correct user is deactivated and right message is put in user history details' do
-    old_setting = SiteSetting.auto_deactivate_enabled
     SiteSetting.auto_deactivate_enabled = true
 
     created_over_a_year_ago = Fabricate(:user, created_at: 366.days.ago)
@@ -46,11 +45,9 @@ RSpec.describe Jobs::AutoDeactivateUsers do
     auto_deactivate_users = Jobs::AutoDeactivateUsers.new
     auto_deactivate_users.execute({})
 
-    expect(created_over_a_year_ago.reload.active).to eq false
-    expect(created_today.reload.active).to eq true
-    expect(UserHistory.last.details).to eq I18n.t("discourse_auto_deactivate.deactivate-reason", num_of_days: SiteSetting.auto_deactivate_after_days)
-
-    SiteSetting.auto_deactivate_enabled = old_setting
+    expect(created_over_a_year_ago.reload.active).to eq(false)
+    expect(created_today.reload.active).to eq(true)
+    expect(UserHistory.last.details).to eq I18n.t("discourse_auto_deactivate.deactivate_reason", count: SiteSetting.auto_deactivate_after_days)
   end
 
 end
