@@ -41,9 +41,10 @@ after_initialize do
 
         deactivate_list = self.class.to_deactivate
         safe_to_deactivate = self.class.exclude_users_in_safe_groups(deactivate_list)
+
         for user in safe_to_deactivate do
           user.active = false
-          deactivate_reason = I18n.t("discourse_auto_deactivate.deactivate-reason")
+          deactivate_reason = I18n.t("discourse_auto_deactivate.deactivate_reason", count: SiteSetting.auto_deactivate_after_days)
 
           if user.save
             StaffActionLogger.new(Discourse.system_user).log_user_deactivate(user, deactivate_reason)
