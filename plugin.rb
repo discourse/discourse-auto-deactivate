@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # name: discourse-auto-deactivate
 # about: Automatically deactivates inactive users so that they need to recomfirm their email in order to login in again
 # version: 0.0.1
