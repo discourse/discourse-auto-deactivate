@@ -19,7 +19,7 @@ after_initialize do
   end
 
   module ::Jobs
-    class AutoDeactivateUsers < Jobs::Scheduled
+    class AutoDeactivateUsers < ::Jobs::Scheduled
       every 1.day
 
       def self.to_deactivate
