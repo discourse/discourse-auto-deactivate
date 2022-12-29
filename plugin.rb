@@ -8,7 +8,7 @@
 
 enabled_site_setting :auto_deactivate_enabled
 
-PLUGIN_NAME ||= 'discourse_auto_deactivate'.freeze
+PLUGIN_NAME ||= "discourse_auto_deactivate".freeze
 
 after_initialize do
   module ::DiscourseAutoDeactivate
@@ -24,15 +24,21 @@ after_initialize do
 
       def self.to_deactivate
         auto_deactivate_days = SiteSetting.auto_deactivate_after_days.days.ago
-        to_deactivate = User.where("(last_seen_at IS NULL OR last_seen_at < ?) AND created_at < ?", auto_deactivate_days, auto_deactivate_days)
-          .where('active = ?', true)
-          .real
+        to_deactivate =
+          User
+            .where(
+              "(last_seen_at IS NULL OR last_seen_at < ?) AND created_at < ?",
+              auto_deactivate_days,
+              auto_deactivate_days,
+            )
+            .where("active = ?", true)
+            .real
       end
 
       def self.exclude_users_in_safe_groups(deactivate_list)
         safe_groups = SiteSetting.auto_deactivate_safe_groups
         safe_to_deactivate = []
-        for user in deactivate_list do
+        for user in deactivate_list
           safe_to_deactivate << user if !(user.groups.any? { |g| safe_groups.include? g.name })
         end
         safe_to_deactivate
@@ -44,17 +50,22 @@ after_initialize do
         deactivate_list = self.class.to_deactivate
         safe_to_deactivate = self.class.exclude_users_in_safe_groups(deactivate_list)
 
-        for user in safe_to_deactivate do
+        for user in safe_to_deactivate
           user.active = false
-          deactivate_reason = I18n.t("discourse_auto_deactivate.deactivate_reason", count: SiteSetting.auto_deactivate_after_days)
+          deactivate_reason =
+            I18n.t(
+              "discourse_auto_deactivate.deactivate_reason",
+              count: SiteSetting.auto_deactivate_after_days,
+            )
 
           if user.save
-            StaffActionLogger.new(Discourse.system_user).log_user_deactivate(user, deactivate_reason)
+            StaffActionLogger.new(Discourse.system_user).log_user_deactivate(
+              user,
+              deactivate_reason,
+            )
           end
         end
       end
-
     end
   end
-
 end
