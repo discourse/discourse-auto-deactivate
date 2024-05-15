@@ -8,10 +8,10 @@
 
 enabled_site_setting :auto_deactivate_enabled
 
-PLUGIN_NAME ||= "discourse_auto_deactivate".freeze
-
 after_initialize do
   module ::DiscourseAutoDeactivate
+    PLUGIN_NAME = "discourse_auto_deactivate".freeze
+
     class Engine < ::Rails::Engine
       engine_name PLUGIN_NAME
       isolate_namespace DiscourseAutoDeactivate
