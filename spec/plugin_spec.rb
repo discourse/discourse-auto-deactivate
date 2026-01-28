@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 RSpec.describe Jobs::AutoDeactivateUsers do
   it "returns only users where last_seen_at is greater than 1 year" do
     created_over_a_year_ago = Fabricate(:user, created_at: 366.days.ago)
